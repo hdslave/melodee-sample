@@ -16,6 +16,7 @@
 #include "melodee/engine/engine_host.h"
 #include "melodee/engine/engine_info.h"
 #include "melodee/plugin/plugin_rack.h"
+#include "melodee/shell/features.h"
 #include "melodee/shell/shell.h"
 #include "melodee/shell/stage_map.h"
 #include <array>
@@ -217,13 +218,26 @@ static int run(const std::string& card, const std::string& plugin, const std::st
     tap(SurfaceButton::Minus);
     CHECK(tr.octave == octave && !ui.preset_due);
     button(SurfaceButton::Sample, false);
-    CHECK(stage_go(ui, EngineKind::Plugin, StageKind::Arp)); // B2's ARP: the octave, as before
-    button(SurfaceButton::Sample, true); // a short hold that moved the octave: its release does not take Stage home
+    // Sample held on the plug-in's PANEL and EDIT and on B2's ARP: Keys' octave, not the plug-in's screen or its pages;
+    // and a short hold's release leaves the page as it is (it took Stage home to PRESETS).
+    for (auto kind : {StageKind::PluginScreen, StageKind::PluginEdit, StageKind::Arp}) {
+        CHECK(stage_go(ui, EngineKind::Plugin, kind));
+        CHECK(stage_page_now(ui, tr, stage_skip(project, ui, tr)).kind == kind);
+        const auto row = ui.plugin_row[entry];
+        button(SurfaceButton::Sample, true);
+        tap(SurfaceButton::Plus);
+        button(SurfaceButton::Sample, false);
+        CHECK(tr.octave == octave + 1 && !ui.preset_due && ui.plugin_row[entry] == row);
+        CHECK(stage_page_now(ui, tr, stage_skip(project, ui, tr)).kind == kind);
+        button(SurfaceButton::Sample, true);
+        tap(SurfaceButton::Minus);
+        button(SurfaceButton::Sample, false);
+        CHECK(tr.octave == octave && stage_page_now(ui, tr, stage_skip(project, ui, tr)).kind == kind);
+    }
+    tap(SurfaceButton::Minus); // on ARP without Sample: the octave, as before
+    CHECK(tr.octave == octave - 1 && !ui.preset_due);
     tap(SurfaceButton::Plus);
-    button(SurfaceButton::Sample, false);
-    CHECK(tr.octave == octave + 1 && stage_page_now(ui, tr, false).kind == StageKind::Arp);
-    tap(SurfaceButton::Minus);
-    CHECK(tr.octave == octave && !ui.preset_due);
+    CHECK(tr.octave == octave);
     CHECK(stage_go(ui, EngineKind::Plugin, StageKind::PluginSound));
     edit();
     tap(SurfaceButton::Plus); // a press taken back before it lands
