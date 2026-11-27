@@ -101,3 +101,10 @@ STEMS := build/stems/melodee-stems
 stems: $(STEMS)
 $(STEMS): tools/stems/build.py tools/stems/stems_engine.c tools/stems/convert_model.py
 	python3 tools/stems/build.py build/stems
+
+# Stage's keys on a plug-in track, pressed on a Shell with the rack and the
+# fixture plug-in (tests/stage_keys.cpp, run by tests/test_plugin_hosts.py;
+# build.sh makes it beside build/melodee).
+build/test-stage-keys: tests/stage_keys.cpp $(OBJECTS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -Wall -Wextra -Werror $< $(filter-out build/obj/main.o,$(OBJECTS)) $(LDLIBS) -o $@
+-include build/test-stage-keys.d

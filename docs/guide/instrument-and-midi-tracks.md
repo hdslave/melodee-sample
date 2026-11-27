@@ -19,10 +19,24 @@ Hold **SHIFT** on a **B1** page for the plug-in's own keys:
 | **B3** | **TRANSPORT**: whether the plug-in hears Play and Stop |
 
 **PRESETS**: the plug-in's presets. The name of the one playing is large,
-with the ones before and after it in the corners. Turn the encoder to load
-the next one; it loads when you stop turning. Push the encoder for the whole
-list. A plug-in with no presets shows **PLUG-IN** instead: its name, its
-format and how much of each audio block it uses.
+with the ones before and after it in the corners. Turn the encoder or press
+**−** / **+** to load the previous or next one; it loads when you stop. At
+either end of the list, or when you come back to the preset that is
+playing, nothing loads, so the preset stays as you edited it. Push the
+encoder for the whole list. A plug-in with no presets shows **PLUG-IN**
+instead: its name, its format and how much of each audio block it uses.
+
+- While the plug-in is opening, the encoder and **−** / **+** do nothing.
+  Pressed while it is still looking for its presets, they show **Looking
+  for presets**.
+- On a frozen track, Melodee asks to unfreeze before the preset changes.
+- With presets listed, **−** / **+** do not move the pads' octave here. For
+  the octave, hold **SAMPLE** ([Keys](#keys)) and press them, or use the
+  track's **B2** and **B3** pages. In the Drums layout those move the bank,
+  and so does a tap on **PAD BANK**. While the light show is on, **SAMPLE**
+  and **−** / **+** pick its style instead.
+- On **PLUG-IN** (no presets), **−** / **+** move the octave or the bank.
+  When the plug-in would not open, or shows **STOPPED**, they do nothing here.
 
 **K1**–**K3** are the same three knobs on every plug-in, applied to what it
 plays:

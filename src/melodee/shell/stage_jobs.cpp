@@ -22,27 +22,50 @@ void Context::preset_turn(int at) {
     ui.preset_due = std::max<uint32_t>(now + stage_preset_ms, 1);
 }
 
-// The plug-in's presets as PRESETS lists them; the wheel walks from the one under the cursor (still turning) or the
-// one it plays, and the one turned to loads once the turning has stopped stage_preset_ms.
-void Context::plugin_preset_turn(int delta) {
+// The plug-in's presets as PRESETS lists them; the wheel and Minus / Plus walk from the one under the cursor (still
+// turning) or the one it plays (none yet: to the first, either way), and the one turned to loads once the turning
+// has stopped stage_preset_ms. Against an end of the list nothing moves, and nothing while the plug-in opens, or
+// while nothing is listed yet as it looks for its presets (said). Nothing either for one that would not open, or that
+// the page shows stopped (a bridge that died). False: an open plug-in that has no presets (its face).
+bool Context::plugin_preset_turn(int delta) {
     const auto& t = track();
-    if (!plugins || t.engine != EngineKind::Plugin || t.plugin >= max_plugins) return;
-    if (frozen_edit(UndoScope {UndoScope::Kind::Sound, uint8_t(ui.track % track_count), 0})) return; // freeze plan F2c
+    if (!plugins || t.engine != EngineKind::Plugin || t.plugin >= max_plugins) return false;
+    const UndoScope sound {UndoScope::Kind::Sound, uint8_t(ui.track % track_count), 0};
+    const auto status = plugins->status(t.plugin);
+    if (status == PluginStatus::None) { // let go by a deep freeze: thawed first, as any change of its sound (F2c)
+        frozen_edit(sound);
+        return true;
+    }
+    if (status != PluginStatus::Ready) return true; // opening, or would not open: no preset to walk to, nor the octave
+    if (ui.plugin_panel.entry == t.plugin && ui.plugin_panel.status == PluginStatus::Crashed) return true; // STOPPED
     auto programs = plugins->programs(t.plugin);
-    if (programs.list.empty()) return;
-    int at = 0;
-    if (ui.preset_due && ui.presets_entry == t.plugin) at = ui.presets_cursor;
+    if (programs.list.empty()) {
+        if (!programs.finding) return false;
+        notice("Looking for presets");
+        return true;
+    }
+    int at = -1;
+    if (ui.preset_due && ui.presets_entry == t.plugin) at = ui.presets_cursor; // still turning
     else for (size_t n = 0; n < programs.list.size(); ++n) if (programs.list[n].index == programs.current) at = int(n);
+    const int to = std::clamp(at + delta, 0, int(programs.list.size()) - 1);
+    if (to == at) return true;
+    if (frozen_edit(sound)) return true;
     ui.presets_entry = t.plugin;
-    ui.presets_cursor = uint16_t(std::clamp(at + delta, 0, int(programs.list.size()) - 1));
+    ui.presets_cursor = uint16_t(to);
     ui.preset_due = std::max<uint32_t>(now + stage_preset_ms, 1);
+    return true;
 }
 
 void Context::stage_tick(uint32_t at) {
     if (!ui.preset_due || at < ui.preset_due) return;
     ui.preset_due = 0;
     if (track().engine == EngineKind::Plugin) { // PRESETS: the plug-in's own
-        if (track().plugin == ui.presets_entry) choose_plugin_program(ui.presets_cursor);
+        if (!plugins || track().plugin != ui.presets_entry) return;
+        const auto programs = plugins->programs(ui.presets_entry);
+        const size_t to = ui.presets_cursor;
+        // Turned away and back to the one it plays: it stays as it was edited, as a synth's sound below.
+        if (to < programs.list.size() && programs.list[to].index == programs.current) return;
+        choose_plugin_program(int(to));
         return;
     }
     std::array<uint16_t, max_listed> list {};

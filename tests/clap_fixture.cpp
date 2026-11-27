@@ -14,6 +14,11 @@
 // gives each its line number as its load key. fixture_preset_reads() counts
 // the files read.
 //
+// For tests/stage_keys.cpp: while the file MELODEE_TEST_HOLD_OPEN names is
+// there, init waits (20 s at most), and so does the preset provider's init for
+// MELODEE_TEST_HOLD_PRESETS, so a test can press keys while the plug-in opens
+// and while its presets are looked for.
+//
 // Both draw their own screen (sdk/melodee-screen/melodee_screen.h): a bar as
 // wide as Sine's Level, or half Gain's Gain, in the track's colour over a dark
 // page or strip.
@@ -22,6 +27,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -30,6 +36,7 @@
 #include <map>
 #include <string>
 #include <sys/stat.h>
+#include <thread>
 #include <vector>
 
 namespace {
@@ -51,6 +58,16 @@ struct Plugin {
     void audio() { if (threads && !threads->is_audio_thread(host)) ++wrongThread; }
 };
 Plugin& of(const clap_plugin* p) { return *static_cast<Plugin*>(p->plugin_data); }
+
+// While the file the variable names is there (20 s at most): tests/stage_keys.cpp holds a state with it.
+void holdWhile(const char* variable) {
+    const char* path = std::getenv(variable);
+    if (!path) return;
+    const auto until = std::chrono::steady_clock::now() + std::chrono::seconds(20);
+    struct stat seen;
+    while (::stat(path, &seen) == 0 && std::chrono::steady_clock::now() < until)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+}
 
 const char* sineFeatures[] {CLAP_PLUGIN_FEATURE_INSTRUMENT, CLAP_PLUGIN_FEATURE_SYNTHESIZER, nullptr};
 const char* gainFeatures[] {CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, nullptr};
@@ -173,6 +190,7 @@ struct Provider {
     const clap_preset_discovery_indexer* indexer = nullptr;
 };
 bool providerInit(const clap_preset_discovery_provider* p) {
+    holdWhile("MELODEE_TEST_HOLD_PRESETS");
     auto* indexer = static_cast<Provider*>(p->provider_data)->indexer;
     clap_preset_discovery_filetype type {"Test preset", "", "tsp"};
     if (!indexer->declare_filetype(indexer, &type)) return false;
@@ -353,6 +371,7 @@ const clap_plugin* create(const clap_plugin_factory*, const clap_host* host, con
     p.desc = instrument ? &sineDescriptor : &gainDescriptor;
     p.plugin_data = s;
     p.init = [](const clap_plugin* p) {
+        holdWhile("MELODEE_TEST_HOLD_OPEN");
         auto& s = of(p);
         s.threads = static_cast<const clap_host_thread_check*>(s.host->get_extension(s.host, CLAP_EXT_THREAD_CHECK));
         s.main();

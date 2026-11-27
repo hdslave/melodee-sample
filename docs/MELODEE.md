@@ -141,7 +141,7 @@ cards.
 | Tap Tempo | Tap the tempo; held half a second, the Tempo page | Metronome Off → On → Rec |
 | Wheel | Moves the cursor or the value; turned while a pot was touched last with Shift, fine edit (on Roll: marks notes; the wheel alone walks each chord's notes, then the next step) | |
 | Push | Opens or confirms | Back along the page stack (16 deep; on Song a marker, on Project up a folder) |
-| − / + | Lists move as the wheel does; on play pages the octave (16 Levels held: its octave or Zones' page; on Roll the pitch: the chord in the step, then a semitone); Settings and Tempo the value; Song markers; Patterns the track; sampler pages and Punch the bank | Undo / redo, on every page; Shift + − undoes as it is let go, and held 0.4 s opens the undo list |
+| − / + | Lists move as the wheel does (a plug-in's presets on Stage's PRESETS too); on play pages the octave (16 Levels held: its octave or Zones' page; on Roll the pitch: the chord in the step, then a semitone); Settings and Tempo the value; Song markers; Patterns the track; sampler pages and Punch the bank | Undo / redo, on every page; Shift + − undoes as it is let go, and held 0.4 s opens the undo list |
 | Sample Record | Record on a kit (there it ends the take and opens Stage's TRIM on the pad; B3 PRINT the PRINT sheet); the PRINT sheet on a PLUGIN or MIDI track (Print and freeze, below); with Seq held, the pattern pads freeze or thaw | Audio Recall: the last 25 s onto the next empty pad |
 | Seq Record | Stopped: arms (flashing), Play starts; playing: records at once; recording: stops recording, playback goes on | Recall (Capture): what every track played last into the pattern it plays when empty, else its next empty pattern, no page |
 | Stop | Stop (on Record, ends the take) | All notes off |
@@ -293,13 +293,19 @@ beat; the meters show the mix.
   button and page. The pads play the track (a kit's pad played is the pad
   edited), the **wheel** fine-edits the card touched last (ringed), **Push**
   moves to the next card (PRESETS: the whole list), Shift +
-  Push is Back, −/+ the octave (a kit's bank; EDIT: the rows).
+  Push is Back, −/+ the octave (a kit's bank; a plug-in's PRESETS: its
+  presets; EDIT: the rows).
   - **A synth** (a PLUGIN track: Melodee Poly, PD and Chip are plug-ins,
     below, "Synths"): B1 **PRESETS → EDIT**, B2 **ARP → CHORD**, B3 **FX**. PRESETS: the plug-in's presets as a poster, the one
     playing large with the plug-in and its format under it and the ones
     before and after small in the corners, the header n / count; the wheel
-    walks them, the one turned to loading 250 ms after the last turn
-    (amber till then), Push opens the whole list (PRESETS, B1 back). K1–K3
+    and −/+ walk them, the one turned to loading 250 ms after the last turn
+    or press (amber till then; against an end of the list, or back on the
+    one it plays, nothing loads; while the plug-in opens nothing moves, while
+    none is listed yet as it looks for them a notice says so; a frozen track
+    asks first; Sample held, or with no presets, −/+ are the octave or the
+    Drums bank; a plug-in that would not open, or stopped: nothing), Push
+    opens the whole list (PRESETS, B1 back). K1–K3
     are the same three knobs on every plug-in, run on what it plays
     (`engine/macros.h`): **FILTER** (left low pass, right high pass, off in
     the middle, its resonance rising as it goes), **ECHO** (how much goes into

@@ -15,4 +15,4 @@ docker build --platform linux/arm64 -t sample-base-builder base/tools
 # Melodee's own image on top: the plug-in support pack's cross compiler and GUI libraries.
 docker build --platform linux/arm64 -t melodee-builder tools/plugin_support
 docker run --rm --platform linux/arm64 -v "$PWD:/work" -e MELODEE_VERSION melodee-builder \
-    sh -c 'make -j4 && make stems && python3 -m unittest discover -s tests -v && python3 -m unittest discover -s core/tests -v && build/melodee --self-test build/test.wav && build/melodee --melodee-monkey && mkdir -p build/melodee-preview && build/melodee --melodee-preview build/melodee-preview'
+    sh -c 'make -j4 all build/test-stage-keys && make stems && python3 -m unittest discover -s tests -v && python3 -m unittest discover -s core/tests -v && build/melodee --self-test build/test.wav && build/melodee --melodee-monkey && mkdir -p build/melodee-preview && build/melodee --melodee-preview build/melodee-preview'

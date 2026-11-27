@@ -238,8 +238,8 @@ Melodee synths are free downloads; see [Plug-ins](guide/plug-ins.md).
 
 5. Press **SAMPLE** to open Stage, and play the pads. To set the key and
    scale the pads play in, hold **SAMPLE** to see **Keys** and turn **K1**
-   for the root, **K2** for the scale and **K3** for the pad layout. Press
-   **−** / **+** to change the octave.
+   for the root, **K2** for the scale and **K3** for the pad layout. Still
+   holding **SAMPLE**, press **−** / **+** to change the octave.
 
    ![Keys](images/screens/keys.png)
 

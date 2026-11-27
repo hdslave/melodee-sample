@@ -113,6 +113,25 @@ class PluginHostTests(unittest.TestCase):
                             str(ROOT / "tests/lv2_fixture/tone.cpp"), "-o", str(bundle / "tone.so")], check=True)
             compile_and_run(self, temp, bundle, "tests/lv2_host.cpp", [], "lv2 ok")
 
+    @unittest.skipUnless((ROOT / "build/test-stage-keys").is_file(), "needs make's build/test-stage-keys (build.sh)")
+    def test_minus_plus_walk_a_plugins_presets_on_stage(self):
+        """Stage's Minus / Plus on a PLUGIN track, pressed on a Shell with the rack (tests/stage_keys.cpp)."""
+        with tempfile.TemporaryDirectory() as temp:
+            library = Path(temp) / "Test.clap"
+            subprocess.run([os.environ.get("CXX", "g++"), *FLAGS, "-shared", "-fPIC",
+                            str(ROOT / "tests/clap_fixture.cpp"), "-o", str(library)], check=True)
+            for mode in ("presets", "face", "broken"):
+                with self.subTest(mode=mode):
+                    card = Path(temp) / mode / "card"
+                    plugin = card / "Melodee/Plugins/Test.clap"
+                    plugin.parent.mkdir(parents=True)
+                    shutil.copy(library, plugin)
+                    result = subprocess.run([str(ROOT / "build/test-stage-keys"), str(card), str(plugin), mode],
+                                            capture_output=True, text=True, timeout=90,
+                                            env={**os.environ, "HOME": str(Path(temp) / mode)})
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn("stage keys ok", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

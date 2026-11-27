@@ -1312,13 +1312,17 @@ void push(Context& c) {
     }
 }
 
-// Minus / Plus: a synth's octave; a kit's bank, as on its pages.
+// Minus / Plus: a synth's octave; a kit's bank, as on its pages. A plug-in's PRESETS: the preset before or after, as
+// the wheel's (its face, a plug-in with no presets: the octave). Sample held: on PRESETS too they are Keys' octave, as
+// K1-K3 are Keys', and Sample's release then opens nothing more.
 void nudge(Context& c, int way) {
+    if (c.ui.sample_held) c.ui.sample_used = true;
     const auto kind = stage_page_now(c.ui, c.track(), stage_skip(c.project, c.ui, c.track())).kind;
     if (kind == StageKind::PluginEdit || kind == StageKind::PluginScreen) { // its own screen's, else its pages
         if (!c.plugin_screen_input(ScreenKey::Step, way)) plugin_page_step(c, way);
         return;
     }
+    if (kind == StageKind::PluginSound && !c.ui.sample_held && c.plugin_preset_turn(way)) return;
     if (c.track().engine == EngineKind::Sampler) sampler_bank(c, way);
     else octave(c, way);
 }
