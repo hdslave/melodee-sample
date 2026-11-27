@@ -32,9 +32,10 @@ instead: its name, its format and how much of each audio block it uses.
 - On a frozen track, Melodee asks to unfreeze before the preset changes.
 - With presets listed, **−** / **+** do not move the pads' octave here. For
   the octave, hold **SAMPLE** ([Keys](#keys)) and press them, on any Stage
-  page, or use the track's **B2** and **B3** pages. In the Drums layout
-  those move the bank, and so does a tap on **PAD BANK**. While the light
-  show is on, **SAMPLE** and **−** / **+** pick its style instead.
+  page, or use the track's **B2** and **B3** pages. In the Drums layout,
+  **SAMPLE** with **−** / **+** and those pages move the bank instead, and
+  so does a tap on **PAD BANK**. While the light show is on, **SAMPLE** and
+  **−** / **+** pick its style instead.
 - On **PLUG-IN** (no presets), **−** / **+** move the octave or the bank.
   When the plug-in would not open, or shows **STOPPED**, they do nothing here.
 
